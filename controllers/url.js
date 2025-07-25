@@ -12,17 +12,8 @@ async function handleGenerateNewShortURL(req, res) {
       visitHistory: [],
       createdBy: req.user?._id,
     });
-
-    let urls = [];
-    if (req.user && req.user._id) {
-      urls = await URL.find({ createdBy: req.user?._id });
-    } else {
-      urls = await URL.find();
-    }
-    return res.render("home", {
-      urls,
-      shortId: shortID,
-    });
+    res.cookie('lastShortId', shortID);
+    return res.redirect('/');
   } catch (error) {
     console.error("Error creating short URL:", error);
     return res.status(500).json({ error: "Internal server error" });

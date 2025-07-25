@@ -7,6 +7,8 @@ const { getUser } = require("../service/auth");
 router.get("/", async (req, res) => {
   // Check if user is logged in
   const userUid = req.cookies?.uid;
+  const lastShortId = req.cookies?.lastShortId;
+
   let allURLs = [];
   
   if (userUid) {
@@ -16,9 +18,10 @@ router.get("/", async (req, res) => {
       allURLs = await URL.find({ createdBy: user._id });
     }
   }
-  
+
   return res.render("home", {
     urls: allURLs,
+    shortId: lastShortId || null,
   });
 });
 
