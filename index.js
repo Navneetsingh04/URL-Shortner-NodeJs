@@ -7,7 +7,7 @@ const URL = require("./models/url");
 const staticRouter = require("./routes/staticRouter");
 const urlRoute = require("./routes/url");
 const userRoute = require("./routes/user");
-const {restrictToLoggedInUserOnly}  = require("./middlewares/auth")
+const {restrictToLoggedInUserOnly ,checkAuth}  = require("./middlewares/auth")
 
 const app = express();
 const PORT = 8000;
@@ -22,7 +22,6 @@ app.use(cookieParser())
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./view"));
 
-// Handle short URL redirects at /url/:shortId (public)
 app.get("/url/:shortId", async (req, res) => {
   const shortID = req.params.shortId;
   console.log("Short URL requested:", shortID);
@@ -51,7 +50,7 @@ app.get("/url/:shortId", async (req, res) => {
 });
 // Static routes first
 app.use("/", staticRouter);
-app.use("/user", userRoute);
+app.use("/user",checkAuth, userRoute);
 app.use("/url", restrictToLoggedInUserOnly,urlRoute);
 
 app.get("/test", async (req, res) => {

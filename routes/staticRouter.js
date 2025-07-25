@@ -21,7 +21,8 @@ router.get("/", async (req, res) => {
 
   return res.render("home", {
     urls: allURLs,
-    shortId: lastShortId || null,
+    shortId: lastShortId,
+    user: userUid ? getUser(userUid) : null, 
   });
 });
 
