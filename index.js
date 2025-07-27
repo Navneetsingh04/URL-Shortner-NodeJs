@@ -22,32 +22,7 @@ app.use(cookieParser())
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./view"));
 
-app.get("/url/:shortId", async (req, res) => {
-  const shortID = req.params.shortId;
-  console.log("Short URL requested:", shortID);
-  try {
-    if (!shortID) {
-      console.log("No shortId provided");
-      return res.status(400).json({ error: "shortId is required" });
-    }
 
-    const entry = await URL.findOneAndUpdate(
-      { shortId: shortID },
-      { $push: { visitHistory: { timestamp: Date.now() } } }
-    );
-    console.log("DB entry for shortId:", entry);
-
-    if (!entry) {
-      console.log("No entry found for shortId:", shortID);
-      return res.status(404).render("404", { message: "URL not found" });
-    }
-
-    res.redirect(entry.redirectedUrl);
-  } catch (error) {
-    console.error("Error to get shortId Url Address:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
 // Static routes first
 app.use("/", staticRouter);
 app.use("/user",checkAuth, userRoute);
