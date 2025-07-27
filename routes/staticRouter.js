@@ -3,28 +3,33 @@ const router = express.Router();
 const URL = require("../models/url")
 
 const { getUser } = require("../service/auth");
+const { restrictTo } = require("../middlewares/auth");
+
+router.get("/admin/url",restrictTo(["Admin"]),async(req,res) => {
+    const allURLs = await URL.find({});
+    return res.render("home",{
+      urls: allURLs,
+    })
+})
 
 router.get("/", async (req, res) => {
-  // Check if user is logged in
-  const userUid = req.cookies?.uid;
+  const userUid = req.cookies?.token;
   const lastShortId = req.cookies?.lastShortId;
 
-  let allURLs = [];
-  
-  if (userUid) {
-    const user = getUser(userUid);
-    if (user) {
-      // Show only user's URLs if logged in
-      allURLs = await URL.find({ createdBy: user._id });
-    }
-  }
+  const user = userUid ? getUser(userUid) : null;
 
+  let allURLs = [];
+
+  if (user) {
+    allURLs = await URL.find({ createdBy: user._id });
+  }
   return res.render("home", {
     urls: allURLs,
     shortId: lastShortId,
-    user: userUid ? getUser(userUid) : null, 
+    user: user,
   });
 });
+
 
 router.get("/signup", (req,res) => {
   return res.render("signup")

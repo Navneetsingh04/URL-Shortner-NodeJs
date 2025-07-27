@@ -7,7 +7,7 @@ const URL = require("./models/url");
 const staticRouter = require("./routes/staticRouter");
 const urlRoute = require("./routes/url");
 const userRoute = require("./routes/user");
-const {restrictToLoggedInUserOnly ,checkAuth}  = require("./middlewares/auth")
+const {checkForAutentication ,restrictTo}  = require("./middlewares/auth")
 
 const app = express();
 const PORT = 8000;
@@ -15,18 +15,18 @@ const PORT = 8000;
 const { connectMongoDb } = require("./config/connection");
 connectMongoDb("mongodb://localhost:27017/short-url");
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser())
-
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./view"));
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser())
+app.use(checkForAutentication);
 
 // Static routes first
 app.use("/", staticRouter);
-app.use("/user",checkAuth, userRoute);
-app.use("/url", restrictToLoggedInUserOnly,urlRoute);
+app.use("/user", userRoute);
+app.use("/url",restrictTo(["User"]),urlRoute);
 
 app.get("/test", async (req, res) => {
   const allUrls = await URL.find();
